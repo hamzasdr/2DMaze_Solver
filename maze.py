@@ -11,7 +11,7 @@ GREEN = (0, 255, 0)
 
 
 
-def generate_maze(place ,wall,screen,length,width,space = 30,):
+def generate_maze(place ,wall,screen,length,width,space):
     i = 0
     j = 0
     place[i][j] = 1
@@ -89,10 +89,13 @@ def generate_maze(place ,wall,screen,length,width,space = 30,):
     dest_i = random.randint(0, length - 1)
     dest_j = random.randint(0, width - 1)
     pygame.draw.rect(screen, GREEN, [102 + dest_i * space, 102 + dest_j * space, space - 2, space - 2], 0)
-
+    pygame.display.flip()
     return start_i , start_j , dest_i , dest_j
 
 
 #TODO: implement A* Algorithm
 def solve_maze():
     pass
+
+
+

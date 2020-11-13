@@ -31,6 +31,7 @@ class MainMenu(Menu):
         self.run_display = True
         while self.run_display:
             self.game.check_events()
+            self.move_cursor()
             self.check_input()
             self.game.display.fill(self.game.BLACK)
             self.game.draw_text('Main Menu', 20, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 20)
@@ -63,7 +64,6 @@ class MainMenu(Menu):
                 self.state = 'Options'
 
     def check_input(self):
-        self.move_cursor()
         if self.game.START_KEY:
             if self.state == 'Start':
                 self.game.playing = True
@@ -91,9 +91,11 @@ class OptionsMenu(Menu):
         self.input_recth = pygame.Rect(self.wix2, self.wih2, 100, 22)
         self.color = pygame.Color('lightgray')
 
+
     def display_menu(self):
         self.run_display = True
         while self.run_display:
+
             self.game.check_events()
             self.check_input()
             self.game.display.fill((0, 0, 0))
@@ -104,8 +106,8 @@ class OptionsMenu(Menu):
             pygame.draw.rect(self.game.display, self.color, self.input_recth, 2)
             text1 = self.base_font.render(self.user_width, True, (255, 255, 255))
             text2 = self.base_font.render(self.user_height, True, (255, 255, 255))
-            self.game.window.blit(text1, (self.input_rectw.x + 45, self.input_rectw.y + 5))
-            self.game.window.blit(text2, (self.input_recth.x + 45, self.input_recth.y + 5))
+            self.game.display.blit(text1, (self.input_rectw.x + 45, self.input_rectw.y + 5))
+            self.game.display.blit(text2, (self.input_recth.x + 45, self.input_recth.y + 5))
             self.draw_cursor()
             pygame.display.update()
             self.blit_screen()
@@ -118,10 +120,12 @@ class OptionsMenu(Menu):
             if self.state == 'Width':
                 self.state = 'Height'
                 self.game.text = ''
+                # print("self.height ",self.user_height)
                 self.cursor_rect.midtop = (self.hx + self.offset, self.hy)
             elif self.state == 'Height':
                 self.state = 'Width'
                 self.game.text = ''
+                # print("self.width ", self.user_width)
                 self.cursor_rect.midtop = (self.wx + self.offset, self.wy)
         elif self.game.TYPE:
             if self.state == 'Width':
@@ -130,6 +134,6 @@ class OptionsMenu(Menu):
                 self.user_height = self.game.text
         elif self.game.DEL:
             if self.state == 'Width':
-                self.user_width = self.game.text[:-1]
+                self.user_width = self.game.text
             elif self.state == 'Height':
-                self.user_height = self.game.text[:-1]
+                self.user_height = self.game.text
