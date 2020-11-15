@@ -1,13 +1,21 @@
 import pygame
 from menu import *
+from maze import *
+import time
 
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+LRED = (255, 204, 203)
 
 class Game:
     def __init__(self):
         pygame.init()
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.TYPE, self.DEL = False, False, False, False, False, False
-        self.DISPLAY_W, self.DISPLAY_H = 480, 270
+        self.DISPLAY_W, self.DISPLAY_H = 512, 512
+        self.space = 15
         self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
         self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
         self.font_name = '8-BIT WONDER.TTF'
@@ -17,17 +25,32 @@ class Game:
         self.options = OptionsMenu(self)
         self.curr_menu = self.main_menu
 
-    # toDo: generate maze in here
+
     def game_loop(self):
+
+        length = int(self.options.user_width)
+        width = int(self.options.user_height)
+
+        self.init_maze(length,width)
+        pygame.display.flip()
+        place = [[0 for y in range(width)] for x in range(length)]
+        wall = [[[1 for z in range(4)] for y in range(width)] for x in range(length)]
+
+        coordinates = generate_maze(place, wall, self.window, length, width,self.space)
+        solve_maze(self,coordinates,wall)
+
         while self.playing:
             self.check_events()
             if self.START_KEY:
+                return
+            elif self.BACK_KEY:
                 self.playing = False
-            self.display.fill(self.BLACK)
-            self.draw_text('MAZE should be in here', 20, self.DISPLAY_W / 2, self.DISPLAY_H / 2)
-            self.window.blit(self.display, (0, 0))
-            pygame.display.update()
-            self.reset_keys()
+                self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
+            # self.display.fill(self.BLACK)
+            # self.draw_text('MAZE should be in here', 20, self.DISPLAY_W / 2, self.DISPLAY_H / 2)
+            # self.window.blit(self.display, (0, 0))
+            # pygame.display.update()
+            # self.reset_keys()
 
     def check_events(self):
         for event in pygame.event.get():
@@ -60,9 +83,21 @@ class Game:
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
 
+    def init_maze(self,length,width):
+        sizex = 200 + int(self.options.user_width) * self.space
+        sizey = 200 + int(self.options.user_height) * self.space
+        self.window = pygame.display.set_mode((sizex, sizey))
+        self.window.fill(WHITE)
+        pygame.draw.rect(self.window, BLACK, [100, 100, sizex - 199, sizey - 199], 2)
+        pygame.display.flip()
+        for x in range(length):
+            pygame.draw.line(self.window, BLACK, [(x * self.space + 100), 100], [(x * self.space + 100), sizey - 100], 2)  # Vertical lines.
+        for x in range(width):
+            pygame.draw.line(self.window, BLACK, [100, (x * self.space + 100)], [sizex - 100, (x * self.space + 100)], 2)  # Horizontal lines.
 
 g = Game()
 
 while g.running:
     g.curr_menu.display_menu()
-    g.game_loop()
+    if g.playing:
+        g.game_loop()
