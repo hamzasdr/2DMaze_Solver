@@ -1,7 +1,6 @@
-import pygame
-import pygame_menu
 import time
-import random
+
+import pygame
 from maze import *
 
 BLACK = (0, 0, 0)
@@ -10,7 +9,6 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
 pygame.init()
-
 
 space = 30
 length = 5
@@ -35,12 +33,11 @@ for x in range(length):
 for x in range(width):
     pygame.draw.line(screen, BLACK, [100, (x * space + 100)], [sizex - 100, (x * space + 100)], 2)  # Horizontal lines.
 
-
 pygame.display.flip()
 place = [[0 for y in range(width)] for x in range(length)]
 wall = [[[1 for z in range(4)] for y in range(width)] for x in range(length)]
 
-start_i,start_j,dest_i,dest_j = generate_maze(place, wall, screen, length, width)
+start_i, start_j, dest_i, dest_j = generate_maze(place, wall, screen, length, width)
 
 pygame.display.flip()
 time.sleep(10)
