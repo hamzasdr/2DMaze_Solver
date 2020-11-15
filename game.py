@@ -7,7 +7,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-
+LRED = (255, 204, 203)
 
 class Game:
     def __init__(self):
@@ -25,27 +25,19 @@ class Game:
         self.options = OptionsMenu(self)
         self.curr_menu = self.main_menu
 
-    # toDo: generate maze in here
-    def game_loop(self):
-        sizex = 200 + int(self.options.user_height) * self.space
-        sizey = 200 + int(self.options.user_width) * self.space
-        length = int(self.options.user_height)
-        width = int(self.options.user_width)
-        self.window = pygame.display.set_mode((sizex, sizey))
-        self.window.fill(WHITE)
-        pygame.draw.rect(self.window, BLACK, [100, 100, sizex - 199, sizey - 199], 2)
-        pygame.display.flip()
-        for x in range(length):
-            pygame.draw.line(self.window, BLACK, [(x * self.space + 100), 100], [(x * self.space + 100), sizey - 100],2)  # Vertical lines.
-        for x in range(width):
-            pygame.draw.line(self.window, BLACK, [100, (x * self.space + 100)], [sizex - 100, (x * self.space + 100)],2)  # Horizontal lines.
 
+    def game_loop(self):
+
+        length = int(self.options.user_width)
+        width = int(self.options.user_height)
+
+        self.init_maze(length,width)
         pygame.display.flip()
         place = [[0 for y in range(width)] for x in range(length)]
         wall = [[[1 for z in range(4)] for y in range(width)] for x in range(length)]
 
-        start_i, start_j, dest_i, dest_j = generate_maze(place, wall, self.window, length, width,self.space)
-        # pygame.display.flip()
+        coordinates = generate_maze(place, wall, self.window, length, width,self.space)
+        solve_maze(self,coordinates,wall)
 
         while self.playing:
             self.check_events()
@@ -91,6 +83,17 @@ class Game:
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
 
+    def init_maze(self,length,width):
+        sizex = 200 + int(self.options.user_width) * self.space
+        sizey = 200 + int(self.options.user_height) * self.space
+        self.window = pygame.display.set_mode((sizex, sizey))
+        self.window.fill(WHITE)
+        pygame.draw.rect(self.window, BLACK, [100, 100, sizex - 199, sizey - 199], 2)
+        pygame.display.flip()
+        for x in range(length):
+            pygame.draw.line(self.window, BLACK, [(x * self.space + 100), 100], [(x * self.space + 100), sizey - 100], 2)  # Vertical lines.
+        for x in range(width):
+            pygame.draw.line(self.window, BLACK, [100, (x * self.space + 100)], [sizex - 100, (x * self.space + 100)], 2)  # Horizontal lines.
 
 g = Game()
 
