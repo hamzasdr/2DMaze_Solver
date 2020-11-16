@@ -1,6 +1,5 @@
 # x = 0
 # y = 30
-# import os
 
 # os.environ['SDL_VIDEO_CENTERED'] = '0'
 # os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x, y)
@@ -53,9 +52,11 @@ class Game:
                 self.playing = False
                 if self.flag:
                     self.infoObject = pygame.display.Info()
+                    self.display = pygame.Surface((self.infoObject.current_w, self.infoObject.current_h))
                     self.window = pygame.display.set_mode((self.infoObject.current_w, self.infoObject.current_h),
                                                           pygame.FULLSCREEN)
                 else:
+                    self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
                     self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
 
     def check_events(self):
@@ -96,7 +97,7 @@ class Game:
         coordy = 256 - (sizey - 199) / 2
         wid = self.DISPLAY_W
         hie = self.DISPLAY_H
-        if (sizex, sizey) > (wid, hie):
+        if sizex > wid or sizey > hie:
             wid = wid * 2
             hie = int(hie * 1.4)
             self.flag = 1
@@ -109,8 +110,7 @@ class Game:
             self.window = pygame.display.set_mode((wid, hie), pygame.FULLSCREEN)
         else:
             self.window = pygame.display.set_mode((wid, hie))
-
-        self.window.fill(BLACK)
+        self.window.blit(self.bg, [0, 0])
         pygame.draw.rect(self.window, WHITE, [coordx, coordy, sizex - 199, sizey - 199], 2)
         pygame.display.flip()
         for x in range(length):

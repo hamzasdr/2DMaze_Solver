@@ -13,22 +13,19 @@ class Menu:
         self.game.draw_text('*', 15, self.cursor_rect.x, self.cursor_rect.y)
 
     def blit_screen(self):
-        # MIGHT BE IN HERE
-        self.game.window.blit(self.game.bg, (0, 0))
-        pygame.display.update()
         self.game.window.blit(self.game.display, (0, 0))
         pygame.display.update()
         self.game.reset_keys()
+
+    def draw_background(self):
+        self.game.display.blit(self.game.bg, [0, 0])
 
 
 class MainMenu(Menu):
     def __init__(self, game):
         Menu.__init__(self, game)
         self.state = "Start"
-        if self.game.flag:
-            self.mid_w, self.mid_h = self.game.infoObject.current_w / 2, self.game.infoObject.current_h / 2
-        else:
-            self.mid_w, self.mid_h = self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2
+        self.mid_w, self.mid_h = self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2
         self.startx, self.starty = self.mid_w, self.mid_h + 30
         self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
         self.quitx, self.quity = self.mid_w, self.mid_h + 70
@@ -41,15 +38,17 @@ class MainMenu(Menu):
             testX, testY = self.game.infoObject.current_w, self.game.infoObject.current_h
         else:
             testX, testY = self.game.DISPLAY_W, self.game.DISPLAY_H
+        self.state = "Start"
         self.mid_w, self.mid_h = testX / 2, testY / 2
         self.startx, self.starty = self.mid_w, self.mid_h + 30
         self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50
         self.quitx, self.quity = self.mid_w, self.mid_h + 70
+        self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
         while self.run_display:
             self.game.check_events()
             self.move_cursor()
             self.check_input()
-            self.game.display.fill(self.game.BLACK)
+            self.draw_background()
             self.game.draw_text('Main Menu', 20, testX / 2,
                                 testY / 2 - 20)
             self.game.draw_text("Start Game", 20, self.startx, self.starty)
@@ -57,6 +56,7 @@ class MainMenu(Menu):
             self.game.draw_text("Quit", 20, self.quitx, self.quity)
             self.draw_cursor()
             self.blit_screen()
+
 
     def move_cursor(self):
         if self.game.DOWN_KEY:
@@ -128,7 +128,7 @@ class OptionsMenu(Menu):
         while self.run_display:
             self.game.check_events()
             self.check_input()
-            self.game.display.fill((0, 0, 0))
+            self.draw_background()
             self.game.draw_text('Options', 20, testX / 2, testY / 2 - 30)
             self.game.draw_text("Width", 15, self.wx, self.wy)
             pygame.draw.rect(self.game.display, self.color, self.input_rectw, 2)
@@ -139,7 +139,6 @@ class OptionsMenu(Menu):
             self.game.display.blit(text1, (self.input_rectw.x + 45, self.input_rectw.y + 5))
             self.game.display.blit(text2, (self.input_recth.x + 45, self.input_recth.y + 5))
             self.draw_cursor()
-            pygame.display.update()
             self.blit_screen()
 
     def check_input(self):
