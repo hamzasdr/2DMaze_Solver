@@ -1,17 +1,23 @@
+# x = 0
+# y = 30
+
+# os.environ['SDL_VIDEO_CENTERED'] = '0'
+# os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (x, y)
+
 import pygame
-from menu import *
 from maze import *
-import time
+from menu import *
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-LRED = (255, 204, 203)
+LGRAY = (210, 210, 210)
+
 
 class Game:
     def __init__(self):
         pygame.init()
+        self.bg = pygame.image.load("bg.png")
+        self.flag = 0
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.TYPE, self.DEL = False, False, False, False, False, False
         self.DISPLAY_W, self.DISPLAY_H = 512, 512
@@ -24,20 +30,19 @@ class Game:
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.curr_menu = self.main_menu
-
+        self.infoObject = pygame.display.Info()
 
     def game_loop(self):
-
         length = int(self.options.user_width)
         width = int(self.options.user_height)
 
-        self.init_maze(length,width)
+        px, py = self.init_maze(length, width)
         pygame.display.flip()
         place = [[0 for y in range(width)] for x in range(length)]
         wall = [[[1 for z in range(4)] for y in range(width)] for x in range(length)]
 
-        coordinates = generate_maze(place, wall, self.window, length, width,self.space)
-        solve_maze(self,coordinates,wall)
+        coordinates = generate_maze(place, wall, self.window, length, width, self.space, px, py)
+        solve_maze(self, coordinates, wall, px, py)
 
         while self.playing:
             self.check_events()
@@ -45,12 +50,14 @@ class Game:
                 return
             elif self.BACK_KEY:
                 self.playing = False
-                self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
-            # self.display.fill(self.BLACK)
-            # self.draw_text('MAZE should be in here', 20, self.DISPLAY_W / 2, self.DISPLAY_H / 2)
-            # self.window.blit(self.display, (0, 0))
-            # pygame.display.update()
-            # self.reset_keys()
+                if self.flag:
+                    self.infoObject = pygame.display.Info()
+                    self.display = pygame.Surface((self.infoObject.current_w, self.infoObject.current_h))
+                    self.window = pygame.display.set_mode((self.infoObject.current_w, self.infoObject.current_h),
+                                                          pygame.FULLSCREEN)
+                else:
+                    self.display = pygame.Surface((self.DISPLAY_W, self.DISPLAY_H))
+                    self.window = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
 
     def check_events(self):
         for event in pygame.event.get():
@@ -83,17 +90,39 @@ class Game:
         text_rect.center = (x, y)
         self.display.blit(text_surface, text_rect)
 
-    def init_maze(self,length,width):
+    def init_maze(self, length, width):
         sizex = 200 + int(self.options.user_width) * self.space
         sizey = 200 + int(self.options.user_height) * self.space
-        self.window = pygame.display.set_mode((sizex, sizey))
-        self.window.fill(WHITE)
-        pygame.draw.rect(self.window, BLACK, [100, 100, sizex - 199, sizey - 199], 2)
+        coordx = 256 - (sizex - 199) / 2
+        coordy = 256 - (sizey - 199) / 2
+        wid = self.DISPLAY_W
+        hie = self.DISPLAY_H
+        if sizex > wid or sizey > hie:
+            wid = wid * 2
+            hie = int(hie * 1.4)
+            self.flag = 1
+            coordx = (wid / 2) - ((sizex - 199) / 2)
+            coordy = (hie / 2) - ((sizey - 199) / 2) + 25
+        else:
+            self.flag = 0
+
+        if self.flag:
+            self.window = pygame.display.set_mode((wid, hie), pygame.FULLSCREEN)
+        else:
+            self.window = pygame.display.set_mode((wid, hie))
+        self.window.blit(self.bg, [0, 0])
+        pygame.draw.rect(self.window, WHITE, [coordx, coordy, sizex - 199, sizey - 199], 2)
         pygame.display.flip()
         for x in range(length):
-            pygame.draw.line(self.window, BLACK, [(x * self.space + 100), 100], [(x * self.space + 100), sizey - 100], 2)  # Vertical lines.
+            pygame.draw.line(self.window, LGRAY, [(x * self.space + coordx), coordy],
+                             [(x * self.space + coordx), coordy + (sizey - 199)],
+                             2)  # Vertical lines.
         for x in range(width):
-            pygame.draw.line(self.window, BLACK, [100, (x * self.space + 100)], [sizex - 100, (x * self.space + 100)], 2)  # Horizontal lines.
+            pygame.draw.line(self.window, LGRAY, [coordx, (x * self.space + coordy)],
+                             [coordx + (sizex - 199), (x * self.space + coordy)],
+                             2)  # Horizontal lines.
+        return coordx, coordy
+
 
 g = Game()
 
